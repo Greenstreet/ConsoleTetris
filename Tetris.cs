@@ -9,20 +9,22 @@ namespace Tetris{
 
     static class Tetris{
 
-        public static int cursorX = 1;
-        public static int cursorY = 1;
+        private static int cursorRow = 1;
+        private static int cursorCol = 10;
         private static Random rng = new Random();
-        public static IList<char> pieces = new List<char>{'o', 'o', 'l', 'l', 'j', 'j', 's', 's', 'z', 'z', 't', 't', 'i', 'i' };
+        private static IList<char> pieces = new List<char>{'o', 'o', 'l', 'l', 'j', 'j', 's', 's', 'z', 'z', 't', 't', 'i', 'i' };
+        private static int[,] tetrisBoard = new int[10, 20];
+        private static Tetrimo currentTetrimo;
 
         static void Main(string[] args){
 
             Console.WindowHeight = 35;
             Console.WindowWidth = 45;
 
-            Border b1 = new Border(0, 0, ConsoleColor.White);
+            BoardDraw b1 = new BoardDraw(0, 0, ConsoleColor.White);
             b1.drawBorder();
 
-            Console.SetCursorPosition(1, 1);
+            Console.SetCursorPosition(10, 1);
 
             pieces.Shuffle();
 
@@ -32,50 +34,61 @@ namespace Tetris{
         }
 
         private static void Engine(){
+            int pieceCounter = 0;
+            currentTetrimo = new Tetrimo(pieces[pieceCounter]);
+            //Console.Write(currentTetrimo.type);
+            //Console.Write(currentTetrimo.shape.GetLength(1));
+
             System.Timers.Timer aTimer = new System.Timers.Timer();
             aTimer.Elapsed += new ElapsedEventHandler(OnTick);
-            aTimer.Interval = 1000;
+            aTimer.Interval = 2000;
             aTimer.Enabled = true;
-            int[,] tetrisBoard = new int[10, 20];
-            Tetrimo currentTetrimo = new Tetrimo(pieces[0]);
 
-            while (true){
-                if (Console.KeyAvailable){
+            while (true) {
+
+                if (Console.KeyAvailable) {
                     ConsoleKeyInfo keyPressed = Console.ReadKey(true);
 
-                    if (keyPressed.Key == ConsoleKey.LeftArrow){
-                        Console.WriteLine("██");
+                    if (keyPressed.Key == ConsoleKey.LeftArrow) {
+                        cursorCol -= 1;
                     }
                     if (keyPressed.Key == ConsoleKey.RightArrow) {
-                        Console.WriteLine("██");
+                        cursorCol += 1;
                     }
                     if (keyPressed.Key == ConsoleKey.DownArrow) {
-                        Console.WriteLine("██");
+                        cursorRow += 1;
                     }
                     if (keyPressed.Key == ConsoleKey.UpArrow) {
-                        Console.WriteLine("██");
-                        Console.Write("██");
+                        currentTetrimo.rotateTetrimo(currentTetrimo.shape);
                     }
-                    if (keyPressed.Key == ConsoleKey.Spacebar) {  
-                     
+                    if (keyPressed.Key == ConsoleKey.Spacebar) {
+                        // TODO drop down
                     }
+
+                    redraw();
                 }
-            }
-        }
-
-        private static void adjustCursorLocation(int cursorX, int cursorY) {
-
+            }               
         }
 
         private static void OnTick(object source, ElapsedEventArgs e) {
+            cursorRow += 1;
+            
+            redraw();
+            
+        }
+
+        private static void redraw() {
             Console.Clear();
 
-            Border b1 = new Border(0, 0, ConsoleColor.White);
+            BoardDraw b1 = new BoardDraw(0, 0, ConsoleColor.White);
+            Console.SetCursorPosition(0, 0);
             b1.drawBorder();
-
-            Console.SetCursorPosition(5, 1);
-
-
+            //b1.drawPlacedPieces(tetrisBoard);
+            Console.SetCursorPosition(cursorCol, cursorRow);
+            b1.drawCurrentPiece(currentTetrimo.shape);
+            
+            Console.SetCursorPosition(cursorCol, cursorRow);
+            
         }
 
         private static void Shuffle<T>(this IList<T> list) {

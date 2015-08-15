@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 namespace Tetris {
     class Tetrimo {
 
-        private char type;
-        private int[,] shape;
+        public char type;
+        public int[,] shape;
 
         public Tetrimo(char type) {
             this.type = type;
@@ -36,6 +36,18 @@ namespace Tetris {
                 default:
                     return null;
             }
+        }
+
+        public void rotateTetrimo(int[,] matrix) {
+            int[,] newShape = new int[4, 4];
+
+            for (int i = 0; i < 4; ++i) {
+                for (int j = 0; j < 4; ++j) {
+                    newShape[i, j] = matrix[4 - j - 1, i];
+                }
+            }
+
+            this.shape = newShape;
         }
     }
 }
