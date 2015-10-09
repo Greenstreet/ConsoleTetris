@@ -1,17 +1,20 @@
 ﻿using System;
+using System.Diagnostics;
 
 public class BoardDraw
 {
-    public int x;
-    public int y;
     public ConsoleColor color;
     public bool isSelected;
     public bool isCursorPosition;
+    private static int[,] tetrisBoard = new int[10, 20];
+    //3d array detailing how to map from cursor to board space.
     //TODO swap this out for a K1,K2,V1 style hash map
-    
-    public BoardDraw(int x, int y, ConsoleColor color) {
-        this.x = x;
-        this.y = y;
+    public int[,,] relationalPlacement = new int[4, 4, 2] { { {-1,-4}, {-1,-2}, {-1,0}, {-1,2}},
+                                                         { { 0,-4},{0,-2}, {0,0}, {0,2} },
+                                                         { { 1,-4}, {1,-2}, {1,0}, {1,2} },
+                                                         { { 2,-4}, {2,-2}, {2,0}, {2,2} } };
+
+    public BoardDraw(ConsoleColor color) {
         this.color = color;
         this.isSelected = false;
         this.isCursorPosition = false;
@@ -56,17 +59,11 @@ public class BoardDraw
     public void drawCurrentPiece(int[,] tetrisPiece) {
         int cursorRow = Console.CursorTop;
         int cursorCol = Console.CursorLeft;
-        //3d array detailing how to map from cursor to board space.
-        int[,,] relationalPlacement = new int[4, 4, 2] { { {-1,-4}, {-1,-2}, {-1,0}, {-1,2}},
-                                                         { { 0,-4},{0,-2}, {0,0}, {0,2} },
-                                                         { { 1,-4}, {1,-2}, {1,0}, {1,2} },
-                                                         { { 2,-4}, {2,-2}, {2,0}, {2,2} } };
-
-        //Console.Write(cursorRow + " " + cursorCol);
 
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if (tetrisPiece[i, j] == 1) {
+                    //Debug.WriteLine(relationalPlacement[i, j, 1]);
                     Console.SetCursorPosition(cursorCol + relationalPlacement[i, j, 1], cursorRow + relationalPlacement[i, j, 0]);
                     Console.Write("██");
                 }

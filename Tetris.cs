@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Diagnostics;
 
 namespace Tetris{
 
     static class Tetris{
 
+        private static BoardDraw b1 = new BoardDraw(ConsoleColor.White);
         private static int cursorRow = 1;
         private static int cursorCol = 10;
         private static Random rng = new Random();
         private static IList<char> pieces = new List<char>{'o', 'o', 'l', 'l', 'j', 'j', 's', 's', 'z', 'z', 't', 't', 'i', 'i' };
-        private static int[,] tetrisBoard = new int[10, 20];
         private static Tetrimo currentTetrimo;
 
         static void Main(string[] args){
@@ -21,7 +22,7 @@ namespace Tetris{
             Console.WindowHeight = 35;
             Console.WindowWidth = 45;
 
-            BoardDraw b1 = new BoardDraw(0, 0, ConsoleColor.White);
+            
             b1.drawBorder();
 
             Console.SetCursorPosition(10, 1);
@@ -49,10 +50,10 @@ namespace Tetris{
                 if (Console.KeyAvailable) {
                     ConsoleKeyInfo keyPressed = Console.ReadKey(true);
 
-                    if (keyPressed.Key == ConsoleKey.LeftArrow) {
+                    if (keyPressed.Key == ConsoleKey.LeftArrow && currentTetrimo.canStrafe(currentTetrimo.shape, 1)) {
                         cursorCol -= 1;
                     }
-                    if (keyPressed.Key == ConsoleKey.RightArrow) {
+                    if (keyPressed.Key == ConsoleKey.RightArrow && currentTetrimo.canStrafe(currentTetrimo.shape, 0)) {
                         cursorCol += 1;
                     }
                     if (keyPressed.Key == ConsoleKey.DownArrow) {
@@ -60,12 +61,14 @@ namespace Tetris{
                     }
                     if (keyPressed.Key == ConsoleKey.UpArrow) {
                         currentTetrimo.rotateTetrimo(currentTetrimo.shape);
+                        cursorCol += currentTetrimo.postRotationAdjust(currentTetrimo.shape);
                     }
                     if (keyPressed.Key == ConsoleKey.Spacebar) {
                         // TODO drop down
                     }
 
                     redraw();
+                    //need to add some mechanism to reset the timer to stop appearance of piece movement events stacking. 
                 }
             }               
         }
@@ -80,7 +83,7 @@ namespace Tetris{
         private static void redraw() {
             Console.Clear();
 
-            BoardDraw b1 = new BoardDraw(0, 0, ConsoleColor.White);
+            BoardDraw b1 = new BoardDraw(ConsoleColor.White);
             Console.SetCursorPosition(0, 0);
             b1.drawBorder();
             //b1.drawPlacedPieces(tetrisBoard);
@@ -91,6 +94,7 @@ namespace Tetris{
             
         }
 
+        //shuffles the order of generated Tetrimo's.
         private static void Shuffle<T>(this IList<T> list) {
             int n = list.Count;
             while (n > 1) {
@@ -101,6 +105,8 @@ namespace Tetris{
                 list[n] = value;
             }
         }
+
+        
 
     }
 }
